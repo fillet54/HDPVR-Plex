@@ -1,0 +1,40 @@
+[
+  {
+    "id":"eyetv_host_pms",
+    "label":"EyeTV host as seen from PMS",
+    "type":"text",
+    "default":"localhost"
+  },
+  {
+    "id":"eyetv_port_pms",
+    "label":"EyeTV port as seen from PMS",
+    "type":"text",
+    "default":"2170"
+  },
+  {
+    "id":"eyetv_host_ios",
+    "label":"EyeTV host as seen from iOS device",
+    "type":"text",
+    "default":"192.168.1.50"
+  },
+  {
+    "id":"eyetv_port_ios",
+    "label":"EyeTV port as seen from iOS device",
+    "type":"text",
+    "default":"2170"
+  },
+  {
+    "id":"livetv_bandwidth",
+    "label":"Bandwidth (kbps) for Live TV",
+    "type":"enum",
+    "values":["320", "720", "1500", "2000"],
+    "default":"1500"
+  },
+  {
+    "id":"passcode",
+    "label":"Passcode",
+    "type":"text",
+    "option":"hidden",
+    "default":""
+  }
+]

@@ -8,6 +8,11 @@ ICON_PREFS     = 'icon-prefs.png'
 
 STREAM_URL     = 'http://%s'
 
+CHANGE_CH_URL = 'http://philgomez.com/streaming_old/directv_remote_control.php?command=%s'
+CHANNEL_THUMB_URL = 'http://philgomez.com/tvServices/logos/%s'
+
+LISTINGS_URL   = 'http://philgomez.com/tvServices/listings.php?startLimit=%d&endLimit=%d'
+
 ####################################################################################################
 def Start():
   Plugin.AddPrefixHandler('/video/livetv', MainMenu, TITLE, ICON_DEFAULT)
@@ -26,33 +31,59 @@ def Start():
 ####################################################################################################
 def MainMenu():
   oc = ObjectContainer(no_cache=True)
-  oc.add(DirectoryObject(key=Callback(Live), title='Live TV'))
+  oc.add(DirectoryObject(key=Callback(LiveListings), title='Live Listings'))
   oc.add(PrefsObject(title='Preferences', thumb=R(ICON_PREFS)))
 
   return oc
 
 ####################################################################################################
-def Live():
+def LiveListings():
+   oc = ObjectContainer(no_cache=True)
+   for i in range(10):
+      oc.add(DirectoryObject(key=Callback(Live, page=i), title='Channels ' + str(i*100+1) + ' to ' + str(i*100+100)))
+
+   return oc
+
+def Live(page):
    oc = ObjectContainer(no_cache=True, view_group='List')
-   oc.add(VideoClipObject(
-      title = 'Channel 710',
-      url = BuildUrl(STREAM_URL),
-      items = [
-         MediaObject(
-            parts = [
-               PartObject(key=Callback(PlayLiveVideo, serviceID='710'))
-               ],
-            protocols = [Protocol.HTTPVideo],
-            platforms = [ClientPlatform.MacOSX],
-            video_codec = VideoCodec.H264,
-            audio_codec = AudioCodec.AAC
-            )
-         ]
-      ))
+   url = LISTINGS_URL % (page*100 + 1, page*100 + 100)
+   Log (" --> URL " +  url )
+   listings = JSON.ObjectFromURL(url)
+
+   for channel in listings:
+
+      subtitle = str(channel['subtitle'])
+      if subtitle == "None": subtitle = ""
+
+      description = str(channel['description'])
+      if description == "None": description = ""
+
+      oc.add(VideoClipObject(
+         title = str(channel['number']) + '. ' + str(channel['callSign']) + " - " + str(channel['title']),
+         url = BuildUrl(STREAM_URL),
+         summary = subtitle + "\n" + description,
+         items = [
+            MediaObject(
+               parts = [
+                  PartObject(key=Callback(PlayLiveVideo, channelNumber=channel['number']))
+                  ],
+               protocols = [Protocol.HTTPVideo],
+               platforms = [ClientPlatform.MacOSX],
+               video_codec = VideoCodec.H264,
+               audio_codec = AudioCodec.AAC,
+               video_resolution = 720,
+               aspect_ratio = '1.77',
+               video_frame_rate = 30
+               )
+            ]
+         ))
    return oc
 
 ####################################################################################################
-def PlayLiveVideo(serviceID):
+def PlayLiveVideo(channelNumber):
+   
+   channel_url = CHANGE_CH_URL % channelNumber
+   resp = JSON.ObjectFromURL(channel_url)
    video_url = BuildUrl(STREAM_URL)
    return Redirect(video_url)
 
@@ -65,8 +96,9 @@ def BuildUrl(url):
 
 ####################################################################################################
 def GetThumb(url):
-  try:
-    data = HTTP.Request(url, cacheTime=CACHE_1DAY).content
-    return DataObject(data, 'image/jpeg')
-  except:
-    return Redirect(R(ICON_DEFAULT))
+   try:
+      Log ('  --> THUMB URL: ' + url)
+      data = HTTP.Request(url, cacheTime=0).content
+      return DataObject(data, 'image/jpeg')
+   except:
+      return Redirect(R(ICON_DEFAULT))

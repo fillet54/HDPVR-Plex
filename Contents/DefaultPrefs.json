@@ -1,14 +1,38 @@
 [
   {
-    "id":"livetv_host_pms",
-    "label":"LiveTV host as seen from PMS",
+    "id":"livetv_streaming_host",
+    "label":"Streaming Video host",
     "type":"text",
     "default":"PhilGomez.com"
   },
   {
-    "id":"livetv_port_pms",
-    "label":"LiveTV port as seen from PMS",
+    "id":"livetv_streaming_port",
+    "label":"Streaming Video port",
     "type":"text",
     "default":"8182"
+  },
+  {
+    "id":"livetv_remote_control_host",
+    "label":"Remote Control host",
+    "type":"text",
+    "default":"PhilGomez.com"
+  },
+  {
+    "id":"livetv_remote_control_port",
+    "label":"Remote Control port",
+    "type":"text",
+    "default":"80"
+  },
+  {
+    "id":"livetv_guide_host",
+    "label":"Guide host",
+    "type":"text",
+    "default":"PhilGomez.com"
+  },
+  {
+    "id":"livetv_guide_port",
+    "label":"Guide port",
+    "type":"text",
+    "default":"80"
   }
 ]

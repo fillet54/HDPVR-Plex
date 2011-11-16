@@ -12,8 +12,10 @@ REMOTE_CONTROL_URL = 'http://%s/streaming_old/directv_remote_control.php?command
 CHANNEL_THUMB_URL = 'http://%s/tvServices/logos/channel_%%s.png'
 CHANNEL_ART_URL   = 'http://%s/tvServices/logos/channel_%%s_art.png'
 
-CHANNEL_DISPLAY = '%s. %s - %s (%s-%s)'
+LISTING_DISPLAY = '%s. %s - %s (%s-%s)'
 LISTINGS_URL   = 'http://%s/tvServices/listings.php?startLimit=%%d&endLimit=%%d'
+LISTINGS_CHANNEL_URL = 'http://%s/tvServices/listings.php?channel=%%s'
+CHANNEL_DISPLAY = '%s %s'
 
 STREAMING_SERVER      = 1
 REMOTE_CONTROL_SERVER = 2
@@ -52,18 +54,16 @@ def MainMenu():
 def LiveListings():
    oc = ObjectContainer(no_cache=True)
    for i in range(10):
-      oc.add(DirectoryObject(key=Callback(Live, page=i), title='Channels ' + str(i*100+1) + ' to ' + str(i*100+100)))
+      oc.add(DirectoryObject(key=Callback(LivePage, page=i), title='Channels ' + str(i*100+1) + ' to ' + str(i*100+100)))
 
    return oc
 
-def Live(page):
+def LivePage(page):
    oc = ObjectContainer(no_cache=True, view_group='List')
    url = BuildUrl(LISTINGS_URL, GUIDE_SERVER) % (page*100 + 1, page*100 + 100)
-   Log (" --> URL " +  url )
    listings = JSON.ObjectFromURL(url)
 
    for channel in listings:
-
       channelNumber = str(channel['number'])
       programTitle = str(channel['title'])
       callSign = str(channel['callSign'])
@@ -78,8 +78,44 @@ def Live(page):
 
       art_url = BuildUrl(CHANNEL_ART_URL, GUIDE_SERVER) % channelNumber
       thumb_url = BuildUrl(CHANNEL_THUMB_URL, GUIDE_SERVER) % channelNumber
+      oc.add(DirectoryObject(
+         title = LISTING_DISPLAY % (channelNumber, callSign, programTitle, startTime, endTime),
+         key = Callback(LiveChannel, channelNumber=channelNumber),
+         summary = subtitle + "\n" + description,
+         art = Callback(GetArt, url=art_url),
+         thumb = Callback(GetThumb, url=thumb_url),
+         ))
+   return oc
+
+def LiveChannel(channelNumber):
+   oc = ObjectContainer(no_cache=True, view_group='List')
+   url = BuildUrl(LISTINGS_CHANNEL_URL, GUIDE_SERVER) % channelNumber
+   listings = JSON.ObjectFromURL(url)
+
+   i = 0
+   for program in listings:
+
+      channelNumber = str(program['number'])
+      programTitle = str(program['title'])
+      callSign = str(program['callSign'])
+
+      if (i == 0):
+         time = 'On Now:'
+      else:
+         startTime = str(program['start'])
+         endTime = str(program['end'])
+         time = '(' + startTime + '-' + endTime + ')'
+
+      subtitle = str(program['subtitle'])
+      if subtitle == "None": subtitle = ""
+
+      description = str(program['description'])
+      if description == "None": description = ""
+
+      art_url = BuildUrl(CHANNEL_ART_URL, GUIDE_SERVER) % channelNumber
+      thumb_url = BuildUrl(CHANNEL_THUMB_URL, GUIDE_SERVER) % channelNumber
       oc.add(VideoClipObject(
-         title = CHANNEL_DISPLAY % (channelNumber, callSign, programTitle, startTime, endTime),
+         title = CHANNEL_DISPLAY % (time, programTitle),
          url = BuildUrl(STREAM_URL, STREAMING_SERVER),
          summary = subtitle + "\n" + description,
          art = Callback(GetArt, url=art_url),
@@ -99,6 +135,7 @@ def Live(page):
                )
             ]
          ))
+      i = i + 1
    return oc
 
 ####################################################################################################

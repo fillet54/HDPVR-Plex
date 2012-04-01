@@ -3,19 +3,19 @@
     "id":"livetv_streaming_host",
     "label":"Streaming Video host",
     "type":"text",
-    "default":"PhilGomez.com"
+    "default":"glendora.PhilGomez.com"
   },
   {
     "id":"livetv_streaming_port",
     "label":"Streaming Video port",
     "type":"text",
-    "default":"8182"
+    "default":"8181"
   },
   {
     "id":"livetv_remote_control_host",
     "label":"Remote Control host",
     "type":"text",
-    "default":"PhilGomez.com"
+    "default":"glendora.PhilGomez.com"
   },
   {
     "id":"livetv_remote_control_port",
@@ -27,7 +27,7 @@
     "id":"livetv_guide_host",
     "label":"Guide host",
     "type":"text",
-    "default":"PhilGomez.com"
+    "default":"192.168.1.100"
   },
   {
     "id":"livetv_guide_port",

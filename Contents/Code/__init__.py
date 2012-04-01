@@ -6,15 +6,15 @@ TITLE          = 'LiveTV'
 ICON_DEFAULT   = 'icon-default.png'
 ICON_PREFS     = 'icon-prefs.png'
 
-STREAM_URL     = 'http://%s'
+STREAM_URL     = 'http://%s/livestream.ts'
 
-REMOTE_CONTROL_URL = 'http://%s/streaming_old/directv_remote_control.php?command=%%s'
-CHANNEL_THUMB_URL = 'http://%s/tvServices/logos/channel_%%s.png'
-CHANNEL_ART_URL   = 'http://%s/tvServices/logos/channel_%%s_art.png'
+REMOTE_CONTROL_URL = 'http://%s/directv_remote_control.php?command=%%s'
+CHANNEL_THUMB_URL = 'http://%s/tvGuideService/logos/channel_%%s.png'
+CHANNEL_ART_URL   = 'http://%s/tvGuideService/logos/channel_%%s_art.png'
 
 LISTING_DISPLAY = '%s. %s - %s (%s-%s)'
-LISTINGS_URL   = 'http://%s/tvServices/listings.php?startLimit=%%d&endLimit=%%d'
-LISTINGS_CHANNEL_URL = 'http://%s/tvServices/listings.php?channel=%%s'
+LISTINGS_URL   = 'http://%s/tvGuideService/index.php?startLimit=%%d&endLimit=%%d'
+LISTINGS_CHANNEL_URL = 'http://%s/tvGuideService/index.php?channel=%%s'
 CHANNEL_DISPLAY = '%s %s'
 
 STREAMING_SERVER      = 1
@@ -47,6 +47,28 @@ def MainMenu():
   oc.add(DirectoryObject(key=Callback(LiveListings), title='Live Listings'))
   oc.add(DirectoryObject(key=Callback(DvrList), title='DVR Listings'))
   oc.add(PrefsObject(title='Preferences', thumb=R(ICON_PREFS)))
+
+  # Temp
+
+  oc.add(VideoClipObject(
+         title = "Open Live Stream",
+         url = BuildUrl(STREAM_URL, STREAMING_SERVER),
+         summary = "Live Stream",
+         items = [
+            MediaObject(
+               parts = [
+                  PartObject(key=Callback(PlayDvr))
+                  ],
+               protocols = [Protocol.HTTPVideo],
+               platforms = [ClientPlatform.MacOSX,ClientPlatform.Windows],
+               video_codec = VideoCodec.H264,
+               audio_codec = AudioCodec.AAC,
+               video_resolution = 720,
+               aspect_ratio = '1.77',
+               video_frame_rate = 30
+               )
+            ]
+         ))
 
   return oc
 
@@ -126,7 +148,7 @@ def LiveChannel(channelNumber):
                   PartObject(key=Callback(PlayLiveVideo, channelNumber=channelNumber))
                   ],
                protocols = [Protocol.HTTPVideo],
-               platforms = [ClientPlatform.MacOSX],
+               platforms = [ClientPlatform.MacOSX,ClientPlatform.Windows],
                video_codec = VideoCodec.H264,
                audio_codec = AudioCodec.AAC,
                video_resolution = 720,
@@ -154,7 +176,7 @@ def DvrList():
               PartObject(key=Callback(PlayDvr))
               ],
            protocols = [Protocol.HTTPVideo],
-           platforms = [ClientPlatform.MacOSX],
+           platforms = [ClientPlatform.MacOSX,ClientPlatform.Windows],
            video_codec = VideoCodec.H264,
            audio_codec = AudioCodec.AAC,
            video_resolution = 720,

@@ -48,28 +48,11 @@ def MainMenu():
   oc.add(DirectoryObject(key=Callback(DvrList), title='DVR Listings'))
   oc.add(PrefsObject(title='Preferences', thumb=R(ICON_PREFS)))
 
-  # Temp
+  vo = VideoClipObject(title="Open Live Stream", url=BuildUrl(STREAM_URL, STREAMING_SERVER), summary="Live Stream")
+  mo = MediaObject(parts=[PartObject(key=Callback(PlayDvr))])
 
-  oc.add(VideoClipObject(
-         title = "Open Live Stream",
-         url = BuildUrl(STREAM_URL, STREAMING_SERVER),
-         summary = "Live Stream",
-         items = [
-            MediaObject(
-               parts = [
-                  PartObject(key=Callback(PlayDvr))
-                  ],
-               protocols = [Protocol.HTTPVideo],
-               platforms = [ClientPlatform.MacOSX,ClientPlatform.Windows],
-               video_codec = VideoCodec.H264,
-               audio_codec = AudioCodec.AAC,
-               video_resolution = 720,
-               aspect_ratio = '1.77',
-               video_frame_rate = 30
-               )
-            ]
-         ))
-
+  vo.add(mo)
+  oc.add(vo)
   return oc
 
 ####################################################################################################

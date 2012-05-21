@@ -53,9 +53,19 @@ def MainMenu():
 
   vo.add(mo)
   oc.add(vo)
+ 
+  
+  vo = VideoClipObject(title="Open Live iOS Stream", url="http://glendora.philgomez.com/streaming/stream_ep_blind.m3u8", summary="Live Stream")
+  mo = MediaObject(parts=[PartObject(key=HTTPLiveStreamURL(Callback(iosStream)))])
+
+  vo.add(mo)
+  oc.add(vo)
   return oc
 
 ####################################################################################################
+def iosStream():
+   return Redirect("http://glendora.philgomez.com/streaming/stream_ep_blind.m3u8")
+
 def LiveListings():
    oc = ObjectContainer(no_cache=True)
    for i in range(10):

@@ -9,6 +9,7 @@ ICON_PREFS     = 'icon-prefs.png'
 STREAM_URL     = 'http://%s/livestream.ts'
 
 REMOTE_CONTROL_URL = 'http://%s/directv_remote_control.php?command=%%s'
+RESET_STREAM_URL = 'http://%s/directv_remote_control.php?reset=true'
 CHANNEL_THUMB_URL = 'http://%s/tvGuideService/logos/channel_%%s.png'
 CHANNEL_ART_URL   = 'http://%s/tvGuideService/logos/channel_%%s_art.png'
 
@@ -45,6 +46,7 @@ def Start():
 def MainMenu():
   oc = ObjectContainer(no_cache=True)
   oc.add(DirectoryObject(key=Callback(LiveListings), title='Live Listings'))
+  oc.add(DirectoryObject(key=Callback(ResetStream), title='Reset Stream'))
   oc.add(DirectoryObject(key=Callback(DvrList), title='DVR Listings'))
   oc.add(PrefsObject(title='Preferences', thumb=R(ICON_PREFS)))
 
@@ -140,7 +142,6 @@ def LiveChannel(channelNumber):
                parts = [
                   PartObject(key=Callback(PlayLiveVideo, channelNumber=channelNumber))
                   ],
-               protocols = [Protocol.HTTPVideo],
                platforms = [ClientPlatform.MacOSX,ClientPlatform.Windows],
                video_codec = VideoCodec.H264,
                audio_codec = AudioCodec.AAC,
@@ -191,10 +192,13 @@ def DvrControl(key):
    resp = JSON.ObjectFromURL(channel_url)
 
 def PlayDvr():
-
    # return the video stream. This is always the same url for all the channels.
    video_url = BuildUrl(STREAM_URL, STREAMING_SERVER)
    return Redirect(video_url)
+
+def ResetStream():
+   reset_url = BuildUrl(RESET_STREAM_URL, REMOTE_CONTROL_SERVER) 
+   resp = JSON.ObjectFromURL(reset_url)
 
 ####################################################################################################
 def PlayLiveVideo(channelNumber):
